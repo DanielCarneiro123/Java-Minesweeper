@@ -4,6 +4,7 @@ import com.googlecode.lanterna.SGR;
 import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
+import org.example.model.Position;
 import org.example.model.elements.Element;
 
 public class Cell extends Element{
@@ -11,12 +12,17 @@ public class Cell extends Element{
     private boolean revealed;
     private int beep;
 
+    private boolean flag;
+
     public Cell(int x, int y){
 
         super(x,y);
         bomb = false;
         revealed = false;
         beep = 0;
+
+        flag = false;
+
     }
 
 
@@ -28,11 +34,12 @@ public class Cell extends Element{
         return bomb;
     }
 
-    public boolean getRevealed(){
+    public boolean isThatRevealed(){
         return revealed;
     }
 
-    public void isRevealed(){
+
+    public void reveal(){
         revealed = true;
     }
 
@@ -42,6 +49,17 @@ public class Cell extends Element{
     public int getBeep(){
         return beep;
     }
+
+    public void toggleFlag(){
+
+        flag = !flag;
+
+    }
+
+    public boolean getFlag() {
+        return flag;
+    }
+
 
     public void draw(TextGraphics screen){
         screen.setForegroundColor(TextColor.Factory.fromString("#FFFFFF"));
@@ -107,5 +125,13 @@ public class Cell extends Element{
                     break;
             }
         }
+        else {
+            if(flag) {
+                screen.setForegroundColor(TextColor.ANSI.RED);
+                screen.enableModifiers(SGR.BOLD);
+                screen.putString(new TerminalPosition(getPosition().getX(), getPosition().getY()), "F");
+            }
+        }
+
     }
 }
