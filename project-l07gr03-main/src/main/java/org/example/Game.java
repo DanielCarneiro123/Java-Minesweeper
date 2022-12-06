@@ -8,7 +8,6 @@ import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.googlecode.lanterna.terminal.Terminal;
 import org.example.view.Arena;
 
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,8 +36,7 @@ public class Game {
         arena.draw(screen.newTextGraphics());
         screen.refresh();
     }
-
-    private void processKey(com.googlecode.lanterna.input.KeyStroke key){
+    private int processKey(com.googlecode.lanterna.input.KeyStroke key) throws IOException {
         System.out.println(key);
         List<Integer> visited = new ArrayList<>();
         switch (key.getKeyType()) {
@@ -46,8 +44,21 @@ public class Game {
             case ArrowDown  -> arena.moveHero(arena.moveDown());
             case ArrowLeft  -> arena.moveHero(arena.moveLeft());
             case ArrowRight -> arena.moveHero(arena.moveRight());
-            case Enter -> arena.expandir(arena.heroPosition(),visited);
+            case Character  -> {
+                if(key.getCharacter() == ('f')) arena.flagCell(arena.heroPosition());
+            }
+            case Enter -> {
+                if(arena.lose(arena.heroPosition())) {
+                    System.out.println("You lost!");
+                    return 2;
+                }
+                if(arena.win()){
+                    System.out.println("YOU WIN!");
+                    return 3;}
+                arena.expandir(arena.heroPosition(),visited);
+            }
         }
+        return 1;
     }
 
 
@@ -58,7 +69,20 @@ public class Game {
             while(true) {
                 draw();
                 com.googlecode.lanterna.input.KeyStroke key = screen.readInput();
-                processKey(key);
+                int i = processKey(key);
+                if(i==2) {
+                    arena.revealBombs();
+                    draw();
+                    Thread.sleep(3000);
+                    screen.close();
+                    return;
+                }
+                else if(i==3){
+                   Thread.sleep(5000);
+                   screen.close();
+                   return;
+                }
+
 
                 if (key.getKeyType() == KeyType.Character && key.getCharacter() == ('q'))
                     screen.close();
@@ -69,6 +93,8 @@ public class Game {
             }
         } catch (IOException e){
             e.printStackTrace();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
 
     }
