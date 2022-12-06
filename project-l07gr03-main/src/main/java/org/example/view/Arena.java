@@ -18,6 +18,10 @@ public class Arena {
     private int width;
     private List<Cell> cells = new ArrayList<>();
 
+    final int numBombs = 20;
+    private int counterFlags = numBombs;
+
+
 
     public Arena(int width, int height){
         this.height = height;
@@ -25,8 +29,9 @@ public class Arena {
         hero = new Hero(10, 5);
         walls = createWalls();
         generateCells();
-        generateBombs(20);
+        generateBombs(numBombs);
         generateBeeps();
+
     }
 
 
@@ -141,12 +146,52 @@ public class Arena {
         }
     }
 
+    public boolean lose(Position position){
+
+        int i = getCellByPosition(position);
+
+        Cell cell = cells.get(i);
+
+        if (cell.isBomb()) {
+            return true;
+        }
+        return false;
+    }
+    public void revealBombs(){
+        for(Cell cell : cells){
+            if(cell.isBomb()) revealCell(cell.getPosition());
+        }
+    }
+    public boolean win(){
+        for(Cell cell : cells){
+            if(!(!cell.isBomb() && cell.isThatRevealed()))  return false;
+        }
+        return true;
+    }
+    public void flagCell(Position position){
+
+        int i = getCellByPosition(position);
+        Cell cell = cells.get(i);
+
+        if(!cell.getFlag() && counterFlags > 0) {
+            cells.get(i).toggleFlag();
+            counterFlags--;
+        }
+        else if (cell.getFlag()) {
+            counterFlags++;
+            cells.get(i).toggleFlag();
+        }
+
+    }
+
     public void draw(TextGraphics screen) {
         screen.setBackgroundColor(TextColor.ANSI.CYAN);
         screen.fillRectangle(new TerminalPosition(0,0), new TerminalSize(width, height), ' ');
         screen.setForegroundColor(TextColor.Factory.fromString("#FFFF33"));
         screen.enableModifiers(SGR.CIRCLED);
         screen.putString(new TerminalPosition(15,2), "MINESWEEPER");
+        screen.putString(new TerminalPosition(20,4), "Flags: " + counterFlags);
+
         for (Cell cell : cells){
             cell.draw(screen);
         }
@@ -175,7 +220,7 @@ public class Arena {
 
     public void revealCell(Position position){
         int i = getCellByPosition(position);
-        cells.get(i).isRevealed();
+        cells.get(i).reveal();
     }
     public void moveHero(Position position){
         if(canHeroMove(position))
