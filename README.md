@@ -1,6 +1,7 @@
 # ldtsminesweeper
 
-hero solid master - andre restivo/modelo organizacional a ser seguido
+projldts - atual
+
 
 
 outro - funcionalidades do minesweeper
