@@ -1,6 +1,7 @@
 package org.example;
 
 import com.googlecode.lanterna.TerminalSize;
+import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.input.KeyType;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.screen.TerminalScreen;
@@ -12,7 +13,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.lang.constant.ConstantDescs.NULL;
+
+
 public class Game {
+
+    private Screen screen;
+    private Arena arena;
     public Game(){
         try {
             TerminalSize terminalSize = new TerminalSize(40, 20);
@@ -36,7 +43,7 @@ public class Game {
         arena.draw(screen.newTextGraphics());
         screen.refresh();
     }
-    private int processKey(com.googlecode.lanterna.input.KeyStroke key) throws IOException {
+    private int processKey(KeyStroke key) throws IOException {
         System.out.println(key);
         List<Integer> visited = new ArrayList<>();
         switch (key.getKeyType()) {
@@ -58,6 +65,7 @@ public class Game {
                     return 3;}
             }
         }
+
         return 1;
     }
 
@@ -65,10 +73,13 @@ public class Game {
 
 
     public void run() {
+
         try {
             while(true) {
                 draw();
-                com.googlecode.lanterna.input.KeyStroke key = screen.readInput();
+
+                // aqui devia ser KeyStroke key = screen.pollInput(); para n parar
+                KeyStroke key = screen.readInput();
                 int i = processKey(key);
                 if(i==2) {
                     arena.revealBombs();
@@ -90,7 +101,6 @@ public class Game {
                 if (key.getKeyType() == KeyType.EOF)
                     break;
 
-
             }
         } catch (IOException e){
             e.printStackTrace();
@@ -99,8 +109,5 @@ public class Game {
         }
 
     }
-
-    private Screen screen;
-    private Arena arena;
 
 }
